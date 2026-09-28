@@ -115,9 +115,9 @@ const GlobalSyncSound: React.FC = () => {
       <SfxAt frames={ok.map((s) => s.at + DRAW)} name="ping" volume={0.5} />
       <Sfx at={178} name="rumble" volume={0.8} />
       <Bed name="tension" from={196} to={270} volume={0.3} fade={20} />
-      <SfxAt frames={[FAIL_STALL, FAIL_STALL + 6]} name="glitch" volume={0.45} />
-      <Sfx at={FAIL_BREAK} name="deny" volume={0.6} />
-      <Sfx at={FAIL_BREAK} name="stamp" volume={0.7} />
+      <SfxAt frames={[FAIL_STALL, FAIL_STALL + 6]} name="glitch" volume={0.35} />
+      <Sfx at={FAIL_BREAK} name="deny" volume={0.4} />
+      <Sfx at={FAIL_BREAK} name="stamp" volume={0.5} />
       <Bed name="klaxon" from={FAIL_BREAK} to={270} volume={0.18} />
     </>
   );

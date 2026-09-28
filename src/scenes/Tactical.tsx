@@ -133,10 +133,10 @@ const TacticalSound: React.FC<{fireFrames: number[]}> = ({fireFrames}) => (
     <Sfx at={ARM_AT + 18} name="rumble" volume={0.7} />
     <Bed name="klaxon" from={ARM_AT} to={KILL_AT} volume={0.16} />
     <Bed name="tension" from={ARM_AT} to={KILL_AT + 10} volume={0.3} fade={16} />
-    <SfxAt frames={fireFrames} name="zap" volume={0.5} />
-    <Sfx at={KILL_AT} name="impact" volume={1} />
-    <Sfx at={KILL_AT} name="boom" volume={0.7} />
-    <Sfx at={KILL_AT + 10} name="stamp" volume={0.7} />
+    <SfxAt frames={fireFrames} name="zap" volume={0.4} />
+    <Sfx at={KILL_AT} name="impact" volume={0.65} />
+    <Sfx at={KILL_AT} name="boom" volume={0.45} />
+    <Sfx at={KILL_AT + 10} name="stamp" volume={0.5} />
   </>
 );
 

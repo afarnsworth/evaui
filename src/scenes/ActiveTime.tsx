@@ -95,7 +95,7 @@ const ActiveTimeSound: React.FC = () => (
     <SfxAt frames={[3, 6, 10, 14]} name="blip" volume={0.25} />
     <SfxAt frames={[9, 12]} name="blip-lo" volume={0.25} />
     <Sfx at={18} name="chatter" volume={0.18} />
-    <Sfx at={CABLE_CUT} name="impact" volume={0.9} />
+    <Sfx at={CABLE_CUT} name="impact" volume={0.75} />
     <Sfx at={CABLE_CUT} name="static" volume={0.5} />
     <Bed name="klaxon" from={CABLE_CUT + 4} to={210} volume={0.2} />
     {/* One tick per displayed second, which becomes a rattle once RACING burns the clock down */}

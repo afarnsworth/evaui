@@ -174,8 +174,8 @@ const PatternBlueSound: React.FC = () => (
     <Sfx at={6} name="chatter" volume={0.3} />
     <Sfx at={40} name="chatter2" volume={0.3} />
     <Sfx at={RESULT_AT - 48} name="riser" volume={0.5} />
-    <Sfx at={RESULT_AT} name="stamp" volume={0.9} />
-    <Sfx at={RESULT_AT} name="impact" volume={0.6} />
+    <Sfx at={RESULT_AT} name="stamp" volume={0.7} />
+    <Sfx at={RESULT_AT} name="impact" volume={0.45} />
     <Sfx at={200} name="static" volume={0.5} />
   </>
 );

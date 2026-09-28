@@ -1,16 +1,19 @@
-# EVA UI — MAGI Sequence
+# EVA UI
 
-A 40-second motion-graphics piece in the style of the NERV / MAGI terminal
+Two short motion-graphics pieces in the style of the NERV / MAGI terminal
 displays from *Neon Genesis Evangelion*. It's built with
 [Remotion](https://www.remotion.dev/) (React components rendered frame by
 frame to MP4). All the graphics are code: SVG, CSS and fonts. There are no
 image or video assets.
 
-**▶ Watch: [`media/magi-sequence.mp4`](media/magi-sequence.mp4)**
+- **Episode 1, 第壱話「思考、起動」** ([`media/magi-sequence.mp4`](media/magi-sequence.mp4)):
+  recreations of screens from the show.
+- **Episode 2, 第弐話「見知らぬ、画面」 *An Unfamiliar Screen*** ([`media/unfamiliar-screen.mp4`](media/unfamiliar-screen.mp4)):
+  new screens in the same design language, none of them from the show.
+
+## Episode 1: MAGI Sequence
 
 ![contact sheet](media/contact-sheet.jpg)
-
-## The sequence
 
 | # | Scene | What happens |
 |---|-------|--------------|
@@ -26,13 +29,40 @@ image or video assets.
 | ![](media/active-time.jpg) | ![](media/magi-defense.jpg) |
 | ![](media/magi-vote.jpg) | ![](media/pattern-blue.jpg) |
 
+## Episode 2: An Unfamiliar Screen
+
+![contact sheet](media/contact-sheet-ep2.jpg)
+
+The rules from episode 1 are kept: orange condensed labels, bilingual
+JP/EN tags, seven-segment readouts, green-plate mode buttons, flicker-on
+elements, hard cuts. The content is new. Each screen uses a different kind
+of motion:
+
+| # | Scene | What happens |
+|---|-------|--------------|
+| 1 | `TitleCardTwo` | 第弐話「見知らぬ、画面」, a riff on the show's episode 2 title 見知らぬ、天井 |
+| 2 | `Tactical` | **迎撃予測 INTERCEPT FORECAST.** A 3D wireframe Tokyo-3 in the Hakone caldera, projected by hand into SVG. A target is tracked along a predicted path. The civilian blocks sink, the GeoFront shows through the ground, weapon buildings rise and fire in sequence → 目標沈黙 |
+| 3 | `ThoughtCircuit` | **思考回路 THOUGHT CIRCUIT on MAGI-04 CLAUDE.** Next-token prediction as a NERV screen: candidate probability bars, a sampling needle spinning down onto the distribution, a causal attention map growing a row per token. It writes *"Every frame is a decision."* |
+| 4 | `GlobalSync` | **全支部同期 GLOBAL SYNC.** A spinning wireframe globe. MAGI links to each branch over great-circle arcs and the sync ratio climbs. The view then tilts south: Antarctica, ground zero, doesn't answer |
+| 5 | `MonitorWall` | Every screen from both episodes live on a 3×3 wall (plus SOUND ONLY and NO SIGNAL feeds). It cuts tile by tile into one title card, 一コマ一コマが決断 ("every frame is a decision"), then the tube switches off |
+
+| | |
+|---|---|
+| ![](media/tactical.jpg) | ![](media/thought-circuit.jpg) |
+| ![](media/global-sync.jpg) | ![](media/monitor-wall.jpg) |
+
 ## Running it
 
 ```bash
 npm install
 npm run dev        # Remotion Studio: scrub the timeline, preview each scene on its own
-npm run render     # full-quality render → out/magi-sequence.mp4
+npm run render     # episode 1, full quality → out/magi-sequence.mp4
+npm run render:ep2 # episode 2 → out/unfamiliar-screen.mp4
 ```
+
+If you add Japanese text to a scene, run `npm run glyphs`. It updates the
+glyph list in `src/fonts.ts`, so the CJK font subsets are loaded before any
+frame renders.
 
 Each scene is also registered as its own composition (`Scene-ActiveTime`,
 `Scene-MagiDefense`, …), so you can preview or render scenes one at a time.
@@ -52,6 +82,7 @@ src/
   components/
     CRT.tsx             scanlines, grain, hum bar, vignette, cut tears
     SevenSeg.tsx        hand-built SVG seven-segment display
+    camera3d.ts         tiny perspective camera for SVG wireframes
   scenes/*.tsx          one file per scene
 ```
 

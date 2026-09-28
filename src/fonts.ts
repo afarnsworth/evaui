@@ -11,8 +11,8 @@ import '@fontsource/noto-sans-jp/900.css';
 // fetches on demand. Ask for every glyph we use up front so no frame renders
 // with a fallback face.
 const JP =
-  '、あでとのまアカケシスタテパビブムリルンー一中主事会作供侵入全内再切劇動可否告員壱外実審律思急態' +
-  '戦承提断析果検決活源演界知種第算終結給緊総置考自致行解計設訴話認警議起部配闘限電青題';
+  '、。あがしだでとなぬのまみらアカクケコサシスセタダチッツテトネバパビブベマムモュリルワンー一中主了予事京会作供侵信候入全兵内再出切到劇力動北南可号同否告命員回壁声壱外完実審尾展市' +
+  '度弐待律応思急意態戦承抽探提撃支断新期未東析果検極構標機次決沈注活測源演率画界目知種第答算終結給緊総線置考自致行装補見解計設訴話認警議起距路迎追送速達部配開闘防限離電青面音題高黙';
 const LATIN =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789:.,-_%/+()[]#@!?';
 

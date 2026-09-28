@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {blink, ease, flickerIn, lerp} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {SevenSeg} from '../components/SevenSeg';
 import {C, F, glow} from '../theme';
 
@@ -98,6 +99,28 @@ const orange: React.CSSProperties = {
   textShadow: glow(C.orange, 0.3),
   whiteSpace: 'nowrap',
   lineHeight: 1,
+};
+
+const GlobalSyncSound: React.FC = () => {
+  const ok = SITES.filter((s) => !s.fails);
+  return (
+    <>
+      <Bed name="hum" to={270} volume={0.3} />
+      <Sfx at={0} name="static" volume={0.35} />
+      <Sfx at={0} name="power-on" volume={0.4} />
+      <SfxAt frames={[10, 13, 16, 19, 22, 25]} name="blip-lo" volume={0.2} />
+      <SfxAt frames={SITES.map((_, i) => 28 + i * 4)} name="blip" volume={0.22} />
+      <SfxAt frames={[40, 120]} name="chatter2" volume={0.15} />
+      <SfxAt frames={SITES.map((s) => s.at)} name="blip" volume={0.35} />
+      <SfxAt frames={ok.map((s) => s.at + DRAW)} name="ping" volume={0.5} />
+      <Sfx at={178} name="rumble" volume={0.8} />
+      <Bed name="tension" from={196} to={270} volume={0.3} fade={20} />
+      <SfxAt frames={[FAIL_STALL, FAIL_STALL + 6]} name="glitch" volume={0.45} />
+      <Sfx at={FAIL_BREAK} name="deny" volume={0.6} />
+      <Sfx at={FAIL_BREAK} name="stamp" volume={0.7} />
+      <Bed name="klaxon" from={FAIL_BREAK} to={270} volume={0.18} />
+    </>
+  );
 };
 
 export const GlobalSync: React.FC = () => {
@@ -354,6 +377,7 @@ export const GlobalSync: React.FC = () => {
           <div style={{fontFamily: F.cond, fontWeight: 700, fontSize: 30, letterSpacing: 5, color: '#000', marginTop: 8}}>ANTARCTICA · GROUND ZERO · NO RESPONSE</div>
         </div>
       )}
+      <GlobalSyncSound />
       <CutTear frames={3} />
     </AbsoluteFill>
   );

@@ -2,6 +2,7 @@ import React, {useMemo} from 'react';
 import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
 import {blink, ease, flickerIn, lerp} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {C, F, glow} from '../theme';
 
 // Three unknown waveforms are analysed until they collapse onto a single
@@ -162,6 +163,23 @@ const Hazard: React.FC<{top?: number; bottom?: number; frame: number; dir: numbe
   </div>
 );
 
+const PatternBlueSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={210} volume={0.25} />
+    <Bed name="klaxon" to={204} volume={0.22} fade={3} />
+    <Bed name="tension" to={204} volume={0.35} fade={3} />
+    <Sfx at={0} name="static" volume={0.4} />
+    <Sfx at={0} name="impact" volume={0.5} />
+    <SfxAt frames={[4, 8, 12]} name="blip" volume={0.25} />
+    <Sfx at={6} name="chatter" volume={0.3} />
+    <Sfx at={40} name="chatter2" volume={0.3} />
+    <Sfx at={RESULT_AT - 48} name="riser" volume={0.5} />
+    <Sfx at={RESULT_AT} name="stamp" volume={0.9} />
+    <Sfx at={RESULT_AT} name="impact" volume={0.6} />
+    <Sfx at={200} name="static" volume={0.5} />
+  </>
+);
+
 export const PatternBlue: React.FC = () => {
   const frame = useCurrentFrame();
   const hexes = useMemo(buildHexes, []);
@@ -316,6 +334,7 @@ export const PatternBlue: React.FC = () => {
         <AbsoluteFill style={{backgroundColor: C.orange, mixBlendMode: 'screen', opacity: lerp(frame, [RESULT_AT, RESULT_AT + 8], [0.6, 0])}} />
       )}
       <AbsoluteFill style={{backgroundColor: '#fff', opacity: whiteout}} />
+      <PatternBlueSound />
       <CutTear frames={3} color={C.red} />
     </AbsoluteFill>
   );

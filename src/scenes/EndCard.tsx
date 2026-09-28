@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {ease, lerp} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx} from '../components/Sfx';
 import {C, F} from '../theme';
 
 // Staff card, then 終劇, then the tube switches off.
@@ -19,6 +20,18 @@ const card: React.CSSProperties = {
 
 const FIN_AT = 78;
 const OFF_AT = 128;
+
+const EndCardSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={OFF_AT} volume={0.2} />
+    <Sfx at={0} name="static" volume={0.4} />
+    <Sfx at={0} name="hit" volume={0.6} />
+    <Sfx at={7} name="hit" volume={0.6} />
+    <Sfx at={15} name="blip-lo" volume={0.3} />
+    <Sfx at={FIN_AT} name="boom" volume={0.9} />
+    <Sfx at={OFF_AT} name="power-off" volume={0.7} />
+  </>
+);
 
 export const EndCard: React.FC = () => {
   const frame = useCurrentFrame();
@@ -87,6 +100,7 @@ export const EndCard: React.FC = () => {
           />
         </AbsoluteFill>
       )}
+      <EndCardSound />
       <CutTear frames={3} color="#fff" />
     </AbsoluteFill>
   );

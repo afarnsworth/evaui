@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
 import {blink, ease, flickerIn, lerp, scramble} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {C, F, glow} from '../theme';
 
 // 思考回路 — a fourth MAGI unit, running Claude, rendered the NERV way:
@@ -71,6 +72,29 @@ const Panel: React.FC<{x: number; y: number; w: number; h: number; jp: string; e
     </div>
     {children}
   </div>
+);
+
+const ThoughtCircuitSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={290} volume={0.25} />
+    <Sfx at={0} name="static" volume={0.35} />
+    <Sfx at={0} name="power-on" volume={0.4} />
+    <SfxAt frames={[4, 10, 14, 18]} name="blip" volume={0.22} />
+    {STEPS.map((_, s) => {
+      const t0 = INTRO + s * T;
+      return (
+        <React.Fragment key={s}>
+          <Sfx at={t0} name={s % 2 ? 'chatter2' : 'chatter'} volume={0.14} />
+          <Sfx at={t0 + 8} name="ratchet" volume={0.8} />
+          <Sfx at={t0 + 24} name="blip" volume={0.35} />
+          <Sfx at={t0 + 30} name="tick" volume={0.8} />
+          <Sfx at={t0 + 30} name="blip-lo" volume={0.3} />
+        </React.Fragment>
+      );
+    })}
+    <Sfx at={END} name="approve" volume={0.5} />
+    <Sfx at={END + 8} name="chatter" volume={0.25} />
+  </>
 );
 
 export const ThoughtCircuit: React.FC = () => {
@@ -346,6 +370,7 @@ export const ThoughtCircuit: React.FC = () => {
         </svg>
       </Panel>
 
+      <ThoughtCircuitSound />
       <CutTear frames={3} color={C.orange} />
     </AbsoluteFill>
   );

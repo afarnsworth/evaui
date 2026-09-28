@@ -8,6 +8,7 @@
     "render": "remotion render MagiSequence out/magi-sequence.mp4",
     "render:ep2": "remotion render UnfamiliarScreen out/unfamiliar-screen.mp4",
     "still": "remotion still MagiSequence out/still.png --frame=560",
+    "sfx": "node scripts/make-sfx.mjs",
     "glyphs": "node scripts/sync-glyphs.mjs",
     "typecheck": "tsc --noEmit"
   },

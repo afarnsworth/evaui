@@ -3,6 +3,7 @@ import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
 import {blink, ease, flickerIn, lerp, scramble} from '../anim';
 import {Camera, Vec3, boxEdges, polyPath, project, segmentsPath} from '../components/camera3d';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {SevenSeg} from '../components/SevenSeg';
 import {C, F, glow} from '../theme';
 
@@ -117,6 +118,27 @@ const Readout: React.FC<{label: string; jp: string; unit: string; value: string;
     </div>
   );
 };
+
+const TacticalSound: React.FC<{fireFrames: number[]}> = ({fireFrames}) => (
+  <>
+    <Bed name="hum" to={300} volume={0.3} />
+    <Sfx at={0} name="static" volume={0.35} />
+    <Sfx at={0} name="power-on" volume={0.4} />
+    <SfxAt frames={[6, 9, 12, 15]} name="blip-lo" volume={0.2} />
+    <SfxAt frames={[10, 13, 16, 19, 22]} name="blip" volume={0.22} />
+    <Sfx at={10} name="chatter" volume={0.25} />
+    <Sfx at={TRACK_AT} name="ping" volume={0.6} />
+    <Sfx at={ARM_AT} name="stamp" volume={0.45} />
+    <Sfx at={ARM_AT + 2} name="rumble" volume={0.8} />
+    <Sfx at={ARM_AT + 18} name="rumble" volume={0.7} />
+    <Bed name="klaxon" from={ARM_AT} to={KILL_AT} volume={0.16} />
+    <Bed name="tension" from={ARM_AT} to={KILL_AT + 10} volume={0.3} fade={16} />
+    <SfxAt frames={fireFrames} name="zap" volume={0.5} />
+    <Sfx at={KILL_AT} name="impact" volume={1} />
+    <Sfx at={KILL_AT} name="boom" volume={0.7} />
+    <Sfx at={KILL_AT + 10} name="stamp" volume={0.7} />
+  </>
+);
 
 export const Tactical: React.FC = () => {
   const frame = useCurrentFrame();
@@ -438,6 +460,7 @@ export const Tactical: React.FC = () => {
       <AbsoluteFill
         style={{backgroundColor: C.orange, mixBlendMode: 'screen', opacity: frame >= KILL_AT ? lerp(frame, [KILL_AT, KILL_AT + 8], [0.8, 0]) : 0}}
       />
+      <TacticalSound fireFrames={weapons.map((b) => FIRE_AT + b.fireOrder * 6)} />
       <CutTear frames={3} />
     </AbsoluteFill>
   );

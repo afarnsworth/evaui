@@ -67,3 +67,10 @@ export const pad = (n: number, width: number) => {
 };
 
 export const commas = (s: string) => s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+
+/** Frames in [from, to) where `fn` returns a different value than the frame before. */
+export const changeFrames = <T,>(from: number, to: number, fn: (f: number) => T) => {
+  const out: number[] = [];
+  for (let f = from; f < to; f++) if (fn(f) !== fn(f - 1)) out.push(f);
+  return out;
+};

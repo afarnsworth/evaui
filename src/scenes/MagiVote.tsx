@@ -1,7 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
-import {blink, ease, flickerIn, lerp, scramble} from '../anim';
+import {blink, ease, flickerIn, lerp, scramble, changeFrames} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {C, F, glow} from '../theme';
 
 // The MAGI deliberate. Melchior and Balthasar approve, Casper dissents,
@@ -174,6 +175,25 @@ const LOG_LINES = (f: number) => {
   if (f >= CASPER_APPROVE_AT) lines.push({t: 'CASPER-3 ........... 承認', c: C.green});
   return lines;
 };
+
+const MagiVoteSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={240} volume={0.3} />
+    <Sfx at={0} name="static" volume={0.35} />
+    <Sfx at={0} name="power-on" volume={0.4} />
+    <SfxAt frames={[2, 6, 10, 15, 20]} name="blip" volume={0.25} />
+    <Sfx at={4} name="chatter" volume={0.3} />
+    <SfxAt frames={[34, 90]} name="chatter2" volume={0.2} />
+    <Sfx at={62} name="chatter" volume={0.2} />
+    <Sfx at={MELCHIOR_AT} name="approve" volume={0.6} />
+    <Sfx at={BALTHASAR_AT} name="approve" volume={0.6} />
+    <Sfx at={CASPER_DENY_AT} name="deny" volume={0.6} />
+    <Bed name="tension" from={CASPER_DENY_AT} to={CASPER_APPROVE_AT + 6} volume={0.3} fade={6} />
+    <SfxAt frames={changeFrames(CASPER_WAVER, CASPER_APPROVE_AT, casperVote)} name="blip-lo" volume={0.3} />
+    <Sfx at={CASPER_APPROVE_AT} name="approve" volume={0.6} />
+    <Sfx at={RESULT_AT} name="stamp" volume={0.8} />
+  </>
+);
 
 export const MagiVote: React.FC = () => {
   const frame = useCurrentFrame();
@@ -368,6 +388,7 @@ export const MagiVote: React.FC = () => {
       {resultOn && (
         <AbsoluteFill style={{backgroundColor: '#3cf08a', mixBlendMode: 'screen', opacity: lerp(frame, [RESULT_AT, RESULT_AT + 6], [0.5, 0])}} />
       )}
+      <MagiVoteSound />
       <CutTear frames={3} color={C.orange} />
     </AbsoluteFill>
   );

@@ -1,10 +1,10 @@
 # EVA UI
 
 Two short motion-graphics pieces in the style of the NERV / MAGI terminal
-displays from *Neon Genesis Evangelion*. It's built with
+displays from *Neon Genesis Evangelion*, built with
 [Remotion](https://www.remotion.dev/) (React components rendered frame by
-frame to MP4). All the graphics are code: SVG, CSS and fonts. There are no
-image or video assets.
+frame to MP4). All the graphics and sound are code: SVG, CSS, fonts and
+synthesized audio. There are no image, video or audio samples.
 
 - **Episode 1, 第壱話「思考、起動」** ([`media/magi-sequence.mp4`](media/magi-sequence.mp4)):
   recreations of screens from the show.
@@ -51,6 +51,32 @@ of motion:
 | ![](media/tactical.jpg) | ![](media/thought-circuit.jpg) |
 | ![](media/global-sync.jpg) | ![](media/monitor-wall.jpg) |
 
+## Sound
+
+Both episodes have a full sound design, and all of it is synthesized.
+`scripts/make-sfx.mjs` builds every effect from oscillators, seeded noise and
+one-pole filters and writes them to `public/sfx/`. There are no samples. The
+palette:
+
+| | |
+|---|---|
+| **UI** | `blip`, `blip-lo` (elements flickering on), `chatter` (MAGI data streams), `tick` (clock, token commits), `ratchet` (the sampling needle decelerating) |
+| **Alerts** | `klaxon` (pulsed-square alarm), `glitch` (bit-crushed intrusion), `approve` / `deny` (MAGI votes), `ping` (lock-on, branch sync) |
+| **Impacts** | `hit` (title-card cuts), `impact`, `boom`, `stamp` (verdict slams: a thump plus an inharmonic bell), `zap` (FM beam), `rumble` |
+| **Tube** | `power-on`, `power-off`, `static` (signal tears on hard cuts) |
+| **Beds** | `hum` (mains hum), `tension` (beating detuned saws) |
+
+Each scene places its cues next to the visuals they belong to, so sound
+and picture share the same frame numbers. Where the picture is driven by
+data, the sound is derived from the same data. The battery clock ticks once
+per displayed second, which turns into a rattle when RACING burns the clock
+down. The zaps come from the same list of weapon buildings that draws the
+beams. Casper's flip-flops fire whenever its vote changes. The monitor
+wall mutes its tiles (`SfxGain`) and has a sound design of its own.
+
+Beds are designed as seamless 4 s loops and tiled to 12 s at build time.
+Remotion's `<Audio loop>` leaves a gap of about a frame at each wrap.
+
 ## Running it
 
 ```bash
@@ -58,6 +84,7 @@ npm install
 npm run dev        # Remotion Studio: scrub the timeline, preview each scene on its own
 npm run render     # episode 1, full quality → out/magi-sequence.mp4
 npm run render:ep2 # episode 2 → out/unfamiliar-screen.mp4
+npm run sfx        # re-synthesize public/sfx/*.wav
 ```
 
 If you add Japanese text to a scene, run `npm run glyphs`. It updates the
@@ -83,6 +110,10 @@ src/
     CRT.tsx             scanlines, grain, hum bar, vignette, cut tears
     SevenSeg.tsx        hand-built SVG seven-segment display
     camera3d.ts         tiny perspective camera for SVG wireframes
+    Sfx.tsx             <Sfx>, <SfxAt>, <Bed> cue helpers + mute context
+scripts/
+  make-sfx.mjs          sound-effect synthesizer
+  sync-glyphs.mjs       CJK font preload list
   scenes/*.tsx          one file per scene
 ```
 

@@ -1,7 +1,8 @@
 import React from 'react';
 import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
-import {blink, ease, flickerIn, lerp, pad} from '../anim';
+import {blink, ease, flickerIn, lerp, pad, changeFrames} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {SevenSeg} from '../components/SevenSeg';
 import {C, F, FPS, glow} from '../theme';
 
@@ -85,6 +86,23 @@ const ModeButton: React.FC<{label: string; active: boolean; hot: boolean}> = ({l
       </div>
     </div>
   </div>
+);
+
+const ActiveTimeSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={210} volume={0.35} />
+    <Sfx at={0} name="power-on" volume={0.5} />
+    <SfxAt frames={[3, 6, 10, 14]} name="blip" volume={0.25} />
+    <SfxAt frames={[9, 12]} name="blip-lo" volume={0.25} />
+    <Sfx at={18} name="chatter" volume={0.18} />
+    <Sfx at={CABLE_CUT} name="impact" volume={0.9} />
+    <Sfx at={CABLE_CUT} name="static" volume={0.5} />
+    <Bed name="klaxon" from={CABLE_CUT + 4} to={210} volume={0.2} />
+    {/* One tick per displayed second, which becomes a rattle once RACING burns the clock down */}
+    <SfxAt frames={changeFrames(CABLE_CUT + 1, 210, (f) => Math.floor(remainingSeconds(f)))} name="tick" volume={0.5} />
+    <Sfx at={RACE} name="stamp" volume={0.6} />
+    <Bed name="tension" from={RACE} to={210} volume={0.35} fade={20} />
+  </>
 );
 
 export const ActiveTime: React.FC = () => {
@@ -347,6 +365,7 @@ export const ActiveTime: React.FC = () => {
           opacity: internal ? lerp(frame, [CABLE_CUT, CABLE_CUT + 8], [0.75, 0]) : 0,
         }}
       />
+      <ActiveTimeSound />
       <CutTear frames={3} color={C.orange} />
     </AbsoluteFill>
   );

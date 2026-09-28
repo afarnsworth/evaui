@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, useCurrentFrame} from 'remotion';
 import {lerp} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {C, F} from '../theme';
 
 // Matisse-style title cards: white heavy mincho on black, squeezed
@@ -50,8 +51,23 @@ type CardSpec = {
   english: [string, string];
 };
 
+// Cuts land on low thumps; the composed card lands on a boom.
+const TitleSound: React.FC<{spec: CardSpec}> = ({spec}) => (
+  <>
+    <SfxAt frames={spec.flashes.map((f) => f.from)} name="hit" volume={0.7} />
+    <SfxAt frames={spec.flashes.map((f) => f.from)} name="static" volume={0.2} />
+    <Sfx at={spec.cardAt} name="boom" volume={0.9} />
+    <Sfx at={spec.cardAt} name="static" volume={0.35} />
+    <Sfx at={spec.cardAt + 8} name="hit" volume={0.5} />
+    <Sfx at={spec.cardAt + 17} name="blip-lo" volume={0.25} />
+    <Bed name="hum" from={spec.cardAt} to={spec.duration} volume={0.18} />
+    <Sfx at={spec.duration - 54} name="riser" volume={0.35} />
+    <Sfx at={spec.duration - 4} name="static" volume={0.4} />
+  </>
+);
+
 const makeTitleCard = (spec: CardSpec) => {
-  const Card: React.FC = () => {
+  const Visual: React.FC = () => {
     const frame = useCurrentFrame();
     const flash = spec.flashes.find((f) => frame >= f.from && frame < f.to);
 
@@ -128,6 +144,12 @@ const makeTitleCard = (spec: CardSpec) => {
       </AbsoluteFill>
     );
   };
+  const Card: React.FC = () => (
+    <>
+      <Visual />
+      <TitleSound spec={spec} />
+    </>
+  );
   return Card;
 };
 

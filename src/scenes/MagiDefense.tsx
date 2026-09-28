@@ -1,7 +1,8 @@
 import React, {useMemo} from 'react';
 import {AbsoluteFill, random, useCurrentFrame} from 'remotion';
-import {blink, commas, ease, flickerIn, lerp, pad} from '../anim';
+import {blink, commas, ease, flickerIn, lerp, pad, changeFrames} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt} from '../components/Sfx';
 import {C, F, glow} from '../theme';
 
 // The MAGI defense screen: concentric data rings spinning around the three
@@ -173,11 +174,31 @@ const CornerBox: React.FC<{
   </div>
 );
 
+const radiusAt = (f: number) => lerp(f, [INTRUSION_START, INTRUSION_END], [1150, 120], ease.inOut);
+const BREACH_AT = changeFrames(INTRUSION_START, INTRUSION_END, (f) => radiusAt(f) < 340)[0];
+
+const MagiDefenseSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={240} volume={0.35} />
+    <Sfx at={0} name="static" volume={0.35} />
+    <Sfx at={0} name="chatter" volume={0.3} />
+    <SfxAt frames={[14, 21, 28]} name="blip" volume={0.3} />
+    <SfxAt frames={[22, 26, 30, 34]} name="blip-lo" volume={0.25} />
+    <SfxAt frames={[45, 130, 190]} name="chatter2" volume={0.2} />
+    <Sfx at={INTRUSION_START} name="glitch" volume={0.5} />
+    <Bed name="klaxon" from={INTRUSION_START + 4} to={240} volume={0.18} />
+    <Bed name="tension" from={INTRUSION_START} to={240} volume={0.3} fade={30} />
+    <SfxAt frames={[118, 146, 172]} name="glitch" volume={0.35} />
+    <Sfx at={BREACH_AT} name="impact" volume={0.7} />
+    <Sfx at={192} name="riser" volume={0.4} />
+  </>
+);
+
 export const MagiDefense: React.FC = () => {
   const frame = useCurrentFrame();
   const rings = useMemo(buildRings, []);
 
-  const R = lerp(frame, [INTRUSION_START, INTRUSION_END], [1150, 120], ease.inOut);
+  const R = radiusAt(frame);
   const zoom = lerp(frame, [0, 240], [1.08, 1.0], ease.out) * lerp(frame, [150, 240], [1, 1.22], ease.in);
   const breached = R < 340;
   const bladeColor = breached ? (blink(frame, 3, 2) ? C.red : C.orange) : C.orange;
@@ -341,6 +362,7 @@ export const MagiDefense: React.FC = () => {
           </div>
         </div>
       )}
+      <MagiDefenseSound />
       <CutTear frames={3} />
     </AbsoluteFill>
   );

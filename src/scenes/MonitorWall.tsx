@@ -2,6 +2,7 @@ import React from 'react';
 import {AbsoluteFill, Sequence, useCurrentFrame} from 'remotion';
 import {blink, ease, lerp} from '../anim';
 import {CutTear} from '../components/CRT';
+import {Bed, Sfx, SfxAt, SfxGain} from '../components/Sfx';
 import {C, F, glow} from '../theme';
 import {ActiveTime} from './ActiveTime';
 import {GlobalSync} from './GlobalSync';
@@ -113,6 +114,19 @@ const TILES: Tile[] = [
   {ch: '09', label: '外部回線', Scene: NoSignal, offset: 0},
 ];
 
+const MonitorWallSound: React.FC = () => (
+  <>
+    <Bed name="hum" to={OFF_AT} volume={0.3} />
+    <Sfx at={0} name="static" volume={0.35} />
+    <SfxAt frames={Array.from({length: 9}, (_, i) => 4 + i * 4)} name="power-on" volume={0.35} />
+    <SfxAt frames={[40, 76]} name="chatter" volume={0.22} />
+    <SfxAt frames={[58, 94]} name="chatter2" volume={0.22} />
+    <SfxAt frames={Array.from({length: 9}, (_, i) => CARD_AT + i * 3)} name="hit" volume={0.5} />
+    <Sfx at={CARD_AT + 26} name="boom" volume={0.8} />
+    <Sfx at={OFF_AT} name="power-off" volume={0.6} />
+  </>
+);
+
 export const MonitorWall: React.FC = () => {
   const frame = useCurrentFrame();
   const push = lerp(frame, [0, OFF_AT], [1.0, 1.03], ease.inOut);
@@ -151,9 +165,12 @@ export const MonitorWall: React.FC = () => {
               <div style={{position: 'absolute', inset: 0, transform: `scaleY(${powered})`}}>
                 {!showCard && (
                   <div style={{width: 1920, height: 1080, transform: `scale(${SCALE})`, transformOrigin: 'left top', position: 'relative'}}>
-                    <Sequence from={-tile.offset} layout="absolute-fill">
-                      <tile.Scene />
-                    </Sequence>
+                    {/* Tiles are muted; the wall has its own sound */}
+                    <SfxGain.Provider value={0}>
+                      <Sequence from={-tile.offset} layout="absolute-fill">
+                        <tile.Scene />
+                      </Sequence>
+                    </SfxGain.Provider>
                   </div>
                 )}
                 {showCard && (
@@ -194,6 +211,7 @@ export const MonitorWall: React.FC = () => {
           <div style={{width: 14, height: 14, borderRadius: 7, background: '#fff', opacity: lerp(frame, [OFF_AT + 11, OFF_AT + 18], [1, 0]), boxShadow: '0 0 30px #fff, 0 0 80px #9fffc0'}} />
         </AbsoluteFill>
       )}
+      <MonitorWallSound />
       <CutTear frames={3} />
     </AbsoluteFill>
   );

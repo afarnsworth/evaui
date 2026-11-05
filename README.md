@@ -83,7 +83,13 @@ tracker.
 
 `tracker/life-tracker.html` is the source. `npm run tracker` wraps it into
 the standalone `tracker/index.html`, which you can open directly or host
-anywhere, e.g. GitHub Pages.
+anywhere.
+
+`.github/workflows/pages.yml` publishes it to GitHub Pages whenever the
+tracker changes on the default branch, or when you run the workflow by
+hand. One-time setup: **Settings → Pages → Build and deployment → Source:
+GitHub Actions**. On a free GitHub plan Pages needs a public repo. On paid
+plans it also works from a private repo, but the published site is public.
 
 ## Sound
 

@@ -11,7 +11,8 @@
     "sfx": "node scripts/make-sfx.mjs",
     "glyphs": "node scripts/sync-glyphs.mjs",
     "typecheck": "tsc --noEmit",
-    "tracker": "node scripts/build-tracker.mjs"
+    "tracker": "node scripts/build-tracker.mjs",
+    "icons": "node scripts/make-icons.mjs"
   },
   "dependencies": {
     "@fontsource/barlow-condensed": "^5.3.0",

@@ -1,4 +1,4 @@
-# Publishes the NERV Life Support tracker to GitHub Pages.
+# Publishes the NERV Life Support tracker to GitHub Pages as an installable app.
 # One-time setup: Settings → Pages → Build and deployment → Source: "GitHub Actions".
 name: Deploy tracker to Pages
 
@@ -7,6 +7,7 @@ on:
     paths:
       - tracker/**
       - scripts/build-tracker.mjs
+      - scripts/make-icons.mjs
       - .github/workflows/pages.yml
   workflow_dispatch:
 
@@ -33,11 +34,11 @@ jobs:
       - uses: actions/checkout@v5
 
       # Node ships with the runner image; the build is one dependency-free script.
-      - name: Build standalone page
+      - name: Build installable app
         run: |
           node scripts/build-tracker.mjs
           mkdir -p _site
-          cp tracker/index.html _site/index.html
+          cp -r tracker/index.html tracker/manifest.webmanifest tracker/sw.js tracker/icons _site/
 
       - uses: actions/configure-pages@v5
 

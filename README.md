@@ -81,15 +81,21 @@ tracker.
   Taps vibrate on phones that support it. The page asks the screen to stay
   awake. The game survives a refresh (saved in the browser).
 
-`tracker/life-tracker.html` is the source. `npm run tracker` wraps it into
-the standalone `tracker/index.html`, which you can open directly or host
-anywhere.
+`tracker/life-tracker.html` is the source. `npm run tracker` builds it into
+an installable web app in `tracker/`: `index.html`, `manifest.webmanifest`
+and `sw.js`. The service worker caches the app and its fonts, so after one
+visit the tracker works with no signal. Its cache name is a hash of the
+shipped files, so every change replaces the old cache. `npm run icons`
+redraws the app icons with a small built-in rasterizer: no image tools,
+same seven-segment geometry as the readout.
 
 `.github/workflows/pages.yml` publishes it to GitHub Pages whenever the
 tracker changes on the default branch, or when you run the workflow by
 hand. One-time setup: **Settings → Pages → Build and deployment → Source:
 GitHub Actions**. On a free GitHub plan Pages needs a public repo. On paid
 plans it also works from a private repo, but the published site is public.
+To install, open the page in Chrome and use **Install app** (or **Add to
+Home Screen** on iOS). It launches full-screen and locked to portrait.
 
 ## Sound
 

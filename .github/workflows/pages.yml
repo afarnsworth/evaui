@@ -30,12 +30,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
+      # Node ships with the runner image; the build is one dependency-free script.
       - name: Build standalone page
         run: |
           node scripts/build-tracker.mjs

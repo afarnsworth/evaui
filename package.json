@@ -10,7 +10,8 @@
     "still": "remotion still MagiSequence out/still.png --frame=560",
     "sfx": "node scripts/make-sfx.mjs",
     "glyphs": "node scripts/sync-glyphs.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "tracker": "node scripts/build-tracker.mjs"
   },
   "dependencies": {
     "@fontsource/barlow-condensed": "^5.3.0",

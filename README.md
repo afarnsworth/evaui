@@ -11,6 +11,10 @@ synthesized audio. There are no image, video or audio samples.
 - **Episode 2, 第弐話「見知らぬ、画面」 *An Unfamiliar Screen*** ([`media/unfamiliar-screen.mp4`](media/unfamiliar-screen.mp4)):
   new screens in the same design language, none of them from the show.
 
+- **NERV Life Support** ([`tracker/`](tracker/)): a two-player Magic: The
+  Gathering life tracker in the same design language. It's a real tool, not
+  a video.
+
 ## Episode 1: MAGI Sequence
 
 ![contact sheet](media/contact-sheet.jpg)
@@ -50,6 +54,36 @@ of motion:
 |---|---|
 | ![](media/tactical.jpg) | ![](media/thought-circuit.jpg) |
 | ![](media/global-sync.jpg) | ![](media/monitor-wall.jpg) |
+
+## NERV Life Support (MTG life tracker)
+
+![tracker](media/life-tracker.png)
+
+Lay the phone flat between the two players. Each half faces its player:
+the far panel is rotated 180°, the same as the official MTG Companion
+tracker.
+
+- **Life.** Tap the left half to lose 1 and the right half to gain 1. Hold
+  to repeat. Quick taps on one player fold into a single change, shown as a
+  green or red delta beside the total and undone in one step.
+- **Readout.** Amber seven-segment digits under 活動限界まで あと (the
+  battery screen's "until activity limit, remaining"), with a 20-cell
+  生命維持 LIFE SUPPORT gauge scaled to the starting life.
+- **States.** At 5 or less the panel turns red, hazard stripes scroll and
+  警告 WARNING blinks. At 0 a 活動停止 UNIT OFFLINE stamp comes down. You
+  can still adjust life afterwards.
+- **Console strip.** 先攻 FIRST runs a MAGI vote (Melchior, Balthasar and
+  Casper vote, majority wins, sometimes one dissents) and stamps the first
+  player's panel. 取消 UNDO. 初期化 RESET to 20, 30 or 40 (Commander).
+  音声 SOUND toggles the effects.
+- **Details.** Tap a player's name to rename it. Sound effects are
+  synthesized live with Web Audio, using the same recipes as the videos.
+  Taps vibrate on phones that support it. The page asks the screen to stay
+  awake. The game survives a refresh (saved in the browser).
+
+`tracker/life-tracker.html` is the source. `npm run tracker` wraps it into
+the standalone `tracker/index.html`, which you can open directly or host
+anywhere, e.g. GitHub Pages.
 
 ## Sound
 

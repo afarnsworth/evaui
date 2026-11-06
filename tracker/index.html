@@ -111,7 +111,7 @@ body::after {
   --accent: var(--unit-0);
   container-type: size;
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto;
   border: 2px solid var(--frame);
   background:
     linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 28px 28px,
@@ -137,41 +137,42 @@ body::after {
   75%, 100% { opacity: 1; }
 }
 
-.ph {
+/* Floating ID box in the corner of the readout: unit tag and name */
+.ident {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 4;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 8px 5px 10px;
-  border-bottom: 1px solid color-mix(in srgb, var(--frame) 45%, transparent);
-  min-width: 0;
+  gap: 7px;
+  max-width: calc(100% - 16px);
+  padding: 3px 8px 3px 3px;
+  background: color-mix(in srgb, var(--ink) 75%, transparent);
+  border: 2px solid var(--orange);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--orange) 35%, transparent);
 }
+.player.cmd-open .ident { display: none; }
 .tag {
   flex: none;
   background: var(--accent);
   color: var(--ink);
   font-family: var(--font-jp);
   font-weight: 900;
-  font-size: clamp(12px, 4.4cqw, 18px);
+  font-size: clamp(12px, 4.2cqw, 17px);
   line-height: 1;
-  padding: 4px 7px;
-}
-.unit {
-  flex: none;
-  color: var(--accent);
-  font-weight: 700;
-  font-size: clamp(11px, 3.8cqw, 16px);
-  letter-spacing: 0.12em;
+  padding: 4px 6px;
 }
 .name {
-  flex: 1;
+  flex: 0 1 auto;
   min-width: 0;
+  max-width: 11ch;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
   background: none;
   border: 0;
-  border-bottom: 1px dashed color-mix(in srgb, var(--orange) 40%, transparent);
   color: var(--orange);
   font: 700 clamp(13px, 4.4cqw, 20px) / 1.1 var(--font-label);
   letter-spacing: 0.08em;
@@ -179,7 +180,8 @@ body::after {
   cursor: text;
 }
 .name-input {
-  flex: 1;
+  flex: 0 1 auto;
+  width: 11ch;
   min-width: 0;
   background: var(--ink);
   border: 1px solid var(--orange);
@@ -290,36 +292,14 @@ body::after {
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  padding: 8px clamp(52px, 17cqw, 92px) 6px;
+  /* top padding clears the ID box */
+  padding: 48px clamp(52px, 17cqw, 92px) 8px;
   gap: 4px;
 }
-.label-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
-}
-.limit {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  white-space: nowrap;
-}
-.limit b {
-  font-family: var(--font-jp);
-  font-weight: 900;
-  font-size: clamp(10px, 3.4cqw, 15px);
-  border: 2px solid var(--orange);
-  padding: 2px 6px;
-  text-shadow: 0 0 6px color-mix(in srgb, var(--orange) 60%, transparent);
-}
-.limit b span + span { margin-left: 0.35em; }
-.limit small {
-  font-size: clamp(10px, 3cqw, 13px);
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
 .delta {
+  position: absolute;
+  top: 10px;
+  right: 12px;
   font: 700 clamp(20px, 7.5cqw, 36px) / 1 var(--font-label);
   letter-spacing: 0.04em;
   opacity: 0;
@@ -431,8 +411,8 @@ body::after {
 .gauge {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 5px 12px 8px;
+  gap: 9px;
+  padding: 5px 10px 6px 6px;
   border-top: 1px solid color-mix(in srgb, var(--frame) 45%, transparent);
 }
 .gauge .lbl {
@@ -460,27 +440,23 @@ body::after {
   font-variant-numeric: tabular-nums;
 }
 
-/* Narrow panels drop the unit caption; the colored tag already names the seat */
+/* Narrow panels keep only the Japanese in the footer captions */
 @container (max-width: 440px) {
-  .unit { display: none; }
+  .gauge .lbl span, .status span { display: none; }
 }
 
-/* Short panels (four-player seats) drop the English captions to keep the total big */
+/* Short panels (four-player seats): the marks stack beside the digits. */
 @container (max-height: 260px) {
-  .unit, .limit small, .gauge .lbl span { display: none; }
-  .ph { padding-block: 5px 4px; }
-  .gauge { padding-block: 4px 6px; }
-  /* Readout becomes a row: vertical label | digits | marks, so the total gets
-     the full height of the short panel. */
-  .readout { flex-direction: row; align-items: stretch; padding-block: 6px; gap: 8px; }
-  .label-row { flex-direction: column; justify-content: center; min-height: 0; }
-  /* Vertical label in two explicit columns, read right to left: 活動限界まで | あと */
-  .limit b { writing-mode: vertical-rl; padding: 5px 2px; font-size: clamp(9px, 6.4cqh, 13px); letter-spacing: 0.04em; }
-  .limit b span { display: block; }
-  .limit b span + span { margin-left: 0; margin-right: 2px; }
-  .delta { position: absolute; top: 6px; right: clamp(52px, 17cqw, 92px); font-size: clamp(16px, 6cqw, 28px); }
+  .gauge .lbl { display: none; }
+  .gauge { padding-block: 4px 5px; }
+  /* A slim strip at the top holds the ID box; digits and plates sit below it. */
+  .readout { flex-direction: row; align-items: stretch; padding-block: 34px 6px; gap: 8px; }
+  .zone { padding-top: 30px; }
+  .ident { top: 5px; left: 5px; padding: 2px 6px 2px 2px; }
+  .delta { top: 6px; right: 10px; font-size: clamp(16px, 6cqw, 28px); }
   .marks { flex-direction: column; justify-content: flex-end; }
   .mark { justify-content: center; }
+  .plate { height: min(50%, 150px); }
 }
 
 /* ---------- stamps ---------- */
@@ -902,13 +878,6 @@ body::after {
 
   const buildPanel = (el, p) => {
     el.innerHTML = `
-      <header class="ph">
-        <span class="tag">${UNITS[p].tag}</span>
-        <span class="unit">${UNITS[p].unit}</span>
-        <button class="name" type="button" id="name-${p}" aria-label="Rename player ${p + 1}"></button>
-        <button class="cmd" type="button" id="cmd-${p}" aria-pressed="false" aria-label="Player ${p + 1}: commander damage and poison"><b>指揮官</b><small>CMDR</small></button>
-        <span class="status"><b></b><span></span></span>
-      </header>
       <div class="hazard"></div>
       <div class="body">
         <button class="zone minus" type="button" id="minus-${p}" aria-label="Player ${p + 1}: lose 1 life">
@@ -918,12 +887,13 @@ body::after {
           <span class="flash"></span><span class="plate"><span>+</span></span>
         </button>
         <div class="readout">
-          <div class="label-row">
-            <span class="limit"><b><span>活動限界まで</span><span>あと</span></b><small>LIFE</small></span>
-            <span class="delta" aria-hidden="true"></span>
-          </div>
+          <span class="delta" aria-hidden="true"></span>
           <div class="digits"></div>
           <div class="marks"></div>
+        </div>
+        <div class="ident">
+          <span class="tag">${UNITS[p].tag}</span>
+          <button class="name" type="button" id="name-${p}" aria-label="Rename player ${p + 1}"></button>
         </div>
         <div class="dmg" hidden>
           ${opponents(p).map((q) => `
@@ -946,9 +916,11 @@ body::after {
         </div>
       </div>
       <footer class="gauge">
+        <button class="cmd" type="button" id="cmd-${p}" aria-pressed="false" aria-label="Player ${p + 1}: commander damage and poison"><b>指揮官</b><small>CMDR</small></button>
         <span class="lbl"><b>生命維持</b><span>LIFE SUPPORT</span></span>
         <span class="cells">${'<i></i>'.repeat(20)}</span>
         <span class="pct"></span>
+        <span class="status"><b></b><span></span></span>
       </footer>
       <p class="sr" aria-live="polite"></p>`;
 
@@ -1006,6 +978,7 @@ body::after {
 
     const open = cmdOpen.has(p);
     el.querySelector('.dmg').hidden = !open;
+    el.classList.toggle('cmd-open', open);
     el.querySelector('.cmd').setAttribute('aria-pressed', String(open));
 
     // Gauge: 20 cells scaled to the starting life
@@ -1104,8 +1077,7 @@ body::after {
   };
 
   const rename = (p) => {
-    const header = panels[p].querySelector('.ph');
-    const nameBtn = header.querySelector('.name');
+    const nameBtn = panels[p].querySelector('.ident .name');
     const input = document.createElement('input');
     input.className = 'name-input';
     input.id = `name-input-${p}`;

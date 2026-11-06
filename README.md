@@ -67,9 +67,7 @@ Lay the phone flat on the table. Each panel turns to face its player.
   console strip, the far one rotated 180°.
 - **Commander (4P · 40).** The phone lies lengthwise with two players on each
   long side. Each panel turns 90° toward its player, and seats run clockwise
-  for turn order. A MAGI hub on the center line opens the controls. In these
-  short panels the 活動限界まで あと label stands vertically, in two columns,
-  so the total gets the full height.
+  for turn order. A MAGI hub on the center line opens the controls.
 - **Life.** Tap the left half to lose 1 and the right half to gain 1. Hold
   to repeat. Quick taps on one player fold into one change, shown as a green
   or red delta and undone in one step. Undo always takes back the most recent
@@ -85,7 +83,11 @@ Lay the phone flat on the table. Each panel turns to face its player.
 - **Console.** 先攻 FIRST runs a MAGI vote and stamps the first player.
   取消 UNDO. 初期化 RESET starts 2P·20, 2P·40 or 4P·40. 音声 SOUND toggles
   effects.
-- **Details.** Tap a name to rename the player. Names label the damage rows
+- **Panel.** The seven-segment total fills the panel. A small floating box
+  in its corner holds the unit tag and name; tap the name to rename. The
+  footer carries the 指揮官 CMDR switch, the 生命維持 gauge and the
+  正常 / 警告 / 活動停止 status.
+- **Details.** Names label the damage rows
   on the other panels too. Web Audio effects, vibration on phones that
   support it, and a screen wake lock. The game survives a refresh.
 

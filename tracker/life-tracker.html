@@ -4,24 +4,29 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Noto+Sans+JP:wght@900&family=Shippori+Mincho+B1:wght@800&display=swap">
 <style>
-/* Layout: two NERV battery panels facing each other across a MAGI console strip.
-   The far panel is rotated 180° so each player reads their own total. */
+/* Layout: NERV battery panels, each turned to face its player.
+   Duel: two panels facing each other across a MAGI console strip.
+   Commander: four panels, two per long side of the phone, around a MAGI hub. */
 :root {
   /* Single deliberate dark look: a NERV terminal. */
   --bg: #030504;
   --panel: #070a08;
   --grid: rgba(70, 255, 138, 0.05);
   --green: #46ff8a;
-  --green-dim: #1b7a45;
   --plate-hi: #7ef06a;
   --plate-lo: #2fb150;
   --orange: #ff8c1a;
   --amber: #ffa91f;
   --amber-off: #1a1004;
   --red: #ff2b1c;
-  --red-deep: #9e0c12;
   --ink: #000000;
   --paper: #f4f1ea;
+  --scrim: rgba(0, 0, 0, 0.72);
+  /* Unit colors: one per seat, so commander damage reads at a glance */
+  --unit-0: #46ff8a;
+  --unit-1: #ff8c1a;
+  --unit-2: #4fd2ff;
+  --unit-3: #b48cff;
 
   --font-display: "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", serif;
   --font-label: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
@@ -56,9 +61,9 @@ body::after {
 }
 
 #app {
+  position: relative;
   height: 100%;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
   gap: 8px;
   padding-block: 8px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
@@ -66,15 +71,33 @@ body::after {
   max-width: 760px;
   margin-inline: auto;
 }
+#app.m2 { grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr); }
+#app.m4 {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+/* A seat is a grid cell; the panel inside is sized and turned to face its player. */
+.seat { position: relative; min-width: 0; min-height: 0; container-type: size; }
+.seat > .player {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 100cqw;
+  height: 100cqh;
+  translate: -50% -50%;
+  rotate: var(--rot, 0deg);
+}
+.seat[data-rot="90"] > .player, .seat[data-rot="-90"] > .player { width: 100cqh; height: 100cqw; }
 
 /* ---------- player panel ---------- */
 .player {
   --frame: var(--orange);
   --digit: var(--amber);
-  position: relative;
+  --accent: var(--unit-0);
+  container-type: size;
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr) auto;
-  min-height: 0;
   border: 2px solid var(--frame);
   background:
     linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 28px 28px,
@@ -84,9 +107,9 @@ body::after {
   overflow: hidden;
   animation: power-on 0.45s steps(1) both;
 }
-.player[data-p="1"] { transform: rotate(180deg); animation-delay: 0.08s; }
-.player[data-p="0"] { --accent: var(--green); }
-.player[data-p="1"] { --accent: var(--orange); }
+.player[data-p="1"] { --accent: var(--unit-1); animation-delay: 0.08s; }
+.player[data-p="2"] { --accent: var(--unit-2); animation-delay: 0.16s; }
+.player[data-p="3"] { --accent: var(--unit-3); animation-delay: 0.24s; }
 
 .player.warn { --frame: var(--red); --digit: var(--red); }
 .player.dead { --frame: var(--red); --digit: var(--red); }
@@ -103,8 +126,8 @@ body::after {
 .ph {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px 6px;
+  gap: 8px;
+  padding: 7px 8px 5px 10px;
   border-bottom: 1px solid color-mix(in srgb, var(--frame) 45%, transparent);
   min-width: 0;
 }
@@ -114,15 +137,15 @@ body::after {
   color: var(--ink);
   font-family: var(--font-jp);
   font-weight: 900;
-  font-size: clamp(13px, 3.6vw, 18px);
+  font-size: clamp(12px, 4.4cqw, 18px);
   line-height: 1;
-  padding: 5px 8px;
+  padding: 4px 7px;
 }
 .unit {
   flex: none;
   color: var(--accent);
   font-weight: 700;
-  font-size: clamp(12px, 3.2vw, 16px);
+  font-size: clamp(11px, 3.8cqw, 16px);
   letter-spacing: 0.12em;
 }
 .name {
@@ -136,7 +159,7 @@ body::after {
   border: 0;
   border-bottom: 1px dashed color-mix(in srgb, var(--orange) 40%, transparent);
   color: var(--orange);
-  font: 700 clamp(14px, 3.8vw, 20px) / 1.1 var(--font-label);
+  font: 700 clamp(13px, 4.4cqw, 20px) / 1.1 var(--font-label);
   letter-spacing: 0.08em;
   padding: 2px 0;
   cursor: text;
@@ -147,7 +170,7 @@ body::after {
   background: var(--ink);
   border: 1px solid var(--orange);
   color: var(--orange);
-  font: 700 clamp(14px, 3.8vw, 20px) / 1.1 var(--font-label);
+  font: 700 clamp(13px, 4.4cqw, 20px) / 1.1 var(--font-label);
   letter-spacing: 0.08em;
   padding: 2px 6px;
   text-transform: uppercase;
@@ -158,15 +181,33 @@ body::after {
   flex: none;
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 5px;
   color: var(--green);
-  font-size: clamp(11px, 3vw, 14px);
+  font-size: clamp(10px, 3.4cqw, 14px);
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
 }
 .status b { font-family: var(--font-jp); font-weight: 900; letter-spacing: 0; }
 .player.warn .status, .player.dead .status { color: var(--red); }
 .player.warn .status { animation: blink 0.9s steps(1) infinite; }
+
+/* Commander damage / poison switch */
+.cmd {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: var(--ink);
+  border: 2px solid var(--orange);
+  color: var(--orange);
+  padding: 3px 6px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.cmd b { font-family: var(--font-jp); font-weight: 900; font-size: clamp(10px, 3.4cqw, 14px); line-height: 1; }
+.cmd small { font: 700 clamp(9px, 2.8cqw, 12px) / 1 var(--font-label); letter-spacing: 0.1em; }
+.cmd[aria-pressed="true"] { background: var(--orange); color: var(--ink); }
+.cmd:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
 
 .hazard {
   height: 0;
@@ -211,8 +252,8 @@ body::after {
 /* Eva mode-button plate: green plate, black well, orange glyph */
 .plate {
   position: relative;
-  width: clamp(40px, 11vw, 62px);
-  height: min(58%, 150px);
+  width: clamp(36px, 12cqw, 62px);
+  height: min(62%, 150px);
   padding: 5px;
   background: linear-gradient(180deg, var(--plate-hi), var(--plate-lo));
   box-shadow: 0 0 18px color-mix(in srgb, var(--green) 25%, transparent);
@@ -224,7 +265,7 @@ body::after {
   background: var(--ink);
   border: 2px solid var(--orange);
   color: var(--orange);
-  font: 700 clamp(28px, 8vw, 44px) / 1 var(--font-label);
+  font: 700 clamp(24px, 9cqw, 44px) / 1 var(--font-label);
   text-shadow: 0 0 8px var(--orange);
 }
 .minus .plate span { color: var(--red); text-shadow: 0 0 8px var(--red); }
@@ -235,7 +276,7 @@ body::after {
   pointer-events: none;
   display: flex;
   flex-direction: column;
-  padding: 10px clamp(56px, 16vw, 92px) 6px;
+  padding: 8px clamp(52px, 17cqw, 92px) 6px;
   gap: 4px;
 }
 .label-row {
@@ -253,18 +294,19 @@ body::after {
 .limit b {
   font-family: var(--font-jp);
   font-weight: 900;
-  font-size: clamp(11px, 3vw, 15px);
+  font-size: clamp(10px, 3.4cqw, 15px);
   border: 2px solid var(--orange);
   padding: 2px 6px;
   text-shadow: 0 0 6px color-mix(in srgb, var(--orange) 60%, transparent);
 }
+.limit b span + span { margin-left: 0.35em; }
 .limit small {
-  font-size: clamp(10px, 2.6vw, 13px);
+  font-size: clamp(10px, 3cqw, 13px);
   font-weight: 600;
   letter-spacing: 0.1em;
 }
 .delta {
-  font: 700 clamp(22px, 6.5vw, 36px) / 1 var(--font-label);
+  font: 700 clamp(20px, 7.5cqw, 36px) / 1 var(--font-label);
   letter-spacing: 0.04em;
   opacity: 0;
   transition: opacity 0.2s;
@@ -273,29 +315,121 @@ body::after {
 .delta.up { color: var(--green); text-shadow: 0 0 10px var(--green); }
 .delta.down { color: var(--red); text-shadow: 0 0 10px var(--red); }
 
-.digits { flex: 1; min-height: 0; display: grid; place-items: center; }
-.digits svg { width: 100%; height: 100%; display: block; overflow: visible; }
+/* The SVG is pinned to its slot so it scales down in short panels instead of
+   sizing itself from its width and spilling over the gauge. */
+.digits { position: relative; flex: 1; min-height: 0; }
+.digits svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
 .digits .on { fill: var(--digit); }
 .digits .off { fill: var(--amber-off); }
 .player.warn .digits .on { animation: blink 1.1s steps(1) infinite; }
+
+/* Commander damage and poison marks under the total */
+.marks { display: flex; justify-content: center; gap: 6px; min-height: 0; }
+.marks:empty { display: none; }
+.mark {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--c);
+  color: var(--ink);
+  font: 700 clamp(11px, 3.6cqw, 15px) / 1 var(--font-label);
+  letter-spacing: 0.04em;
+  padding: 2px 6px;
+}
+.mark b { font-family: var(--font-jp); font-weight: 900; font-size: 0.85em; }
+.mark.hot { outline: 2px solid var(--red); outline-offset: 1px; }
+
+/* ---------- commander damage grid ---------- */
+.dmg {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--panel);
+}
+.dmg[hidden] { display: none; }
+.dcell {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 3px;
+  min-height: 0;
+  border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+  padding: 4px;
+}
+.dsrc {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  white-space: nowrap;
+}
+.dsrc b {
+  flex: none;
+  background: var(--c);
+  color: var(--ink);
+  font-family: var(--font-jp);
+  font-weight: 900;
+  font-size: clamp(10px, 3.2cqw, 14px);
+  line-height: 1;
+  padding: 2px 5px;
+}
+.dsrc small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--c);
+  font: 700 clamp(10px, 3cqw, 13px) / 1 var(--font-label);
+  letter-spacing: 0.08em;
+}
+.dctl { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 4px; min-height: 0; }
+.dbtn {
+  min-height: 0;
+  background: var(--ink);
+  border: 2px solid var(--orange);
+  color: var(--orange);
+  font: 700 clamp(18px, 6cqw, 30px) / 1 var(--font-label);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.dbtn.minus { color: var(--green); }
+.dbtn.plus { color: var(--red); }
+.dbtn:active { background: var(--orange); color: var(--ink); }
+.dbtn:focus-visible { outline: 2px solid var(--paper); outline-offset: 1px; }
+.dval {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 2px;
+  color: var(--amber);
+  font: 700 clamp(20px, 8cqw, 40px) / 1 var(--font-label);
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 8px color-mix(in srgb, var(--amber) 60%, transparent);
+  align-self: center;
+}
+.dval small { font-size: 0.4em; color: color-mix(in srgb, var(--orange) 70%, transparent); text-shadow: none; }
+.dval.hot { color: var(--red); text-shadow: 0 0 8px var(--red); }
 
 /* ---------- gauge ---------- */
 .gauge {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 12px 9px;
+  padding: 5px 12px 8px;
   border-top: 1px solid color-mix(in srgb, var(--frame) 45%, transparent);
 }
 .gauge .lbl {
   flex: none;
-  font-size: clamp(10px, 2.6vw, 13px);
+  font-size: clamp(10px, 3cqw, 13px);
   font-weight: 700;
   letter-spacing: 0.12em;
   white-space: nowrap;
 }
 .gauge .lbl b { font-family: var(--font-jp); font-weight: 900; letter-spacing: 0; margin-right: 6px; }
-.cells { flex: 1; display: flex; gap: 3px; height: 12px; min-width: 0; }
+.cells { flex: 1; display: flex; gap: 3px; height: 11px; min-width: 0; }
 .cells i {
   flex: 1;
   transform: skewX(-20deg);
@@ -308,8 +442,31 @@ body::after {
   width: 4.2ch;
   text-align: right;
   font-weight: 700;
-  font-size: clamp(12px, 3.2vw, 16px);
+  font-size: clamp(11px, 3.6cqw, 16px);
   font-variant-numeric: tabular-nums;
+}
+
+/* Narrow panels drop the unit caption; the colored tag already names the seat */
+@container (max-width: 440px) {
+  .unit { display: none; }
+}
+
+/* Short panels (four-player seats) drop the English captions to keep the total big */
+@container (max-height: 260px) {
+  .unit, .limit small, .gauge .lbl span { display: none; }
+  .ph { padding-block: 5px 4px; }
+  .gauge { padding-block: 4px 6px; }
+  /* Readout becomes a row: vertical label | digits | marks, so the total gets
+     the full height of the short panel. */
+  .readout { flex-direction: row; align-items: stretch; padding-block: 6px; gap: 8px; }
+  .label-row { flex-direction: column; justify-content: center; min-height: 0; }
+  /* Vertical label in two explicit columns, read right to left: 活動限界まで | あと */
+  .limit b { writing-mode: vertical-rl; padding: 5px 2px; font-size: clamp(9px, 6.4cqh, 13px); letter-spacing: 0.04em; }
+  .limit b span { display: block; }
+  .limit b span + span { margin-left: 0; margin-right: 2px; }
+  .delta { position: absolute; top: 6px; right: clamp(52px, 17cqw, 92px); font-size: clamp(16px, 6cqw, 28px); }
+  .marks { flex-direction: column; justify-content: flex-end; }
+  .mark { justify-content: center; }
 }
 
 /* ---------- stamps ---------- */
@@ -324,7 +481,7 @@ body::after {
   color: var(--ink);
   border: 4px solid var(--stamp, var(--orange));
   box-shadow: 0 0 40px var(--stamp, var(--orange));
-  padding: 10px 26px 12px;
+  padding: 8px 24px 10px;
   text-align: center;
   white-space: nowrap;
   line-height: 1;
@@ -333,13 +490,13 @@ body::after {
   display: block;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(40px, 13vw, 84px);
+  font-size: clamp(32px, 13cqw, 84px);
   transform: scale(0.88, 1.15);
 }
 .stamp small {
   display: block;
   margin-top: 8px;
-  font: 700 clamp(12px, 3.4vw, 18px) / 1 var(--font-label);
+  font: 700 clamp(11px, 3.6cqw, 18px) / 1 var(--font-label);
   letter-spacing: 0.3em;
 }
 .stamp.dead { --stamp: var(--red); }
@@ -388,7 +545,7 @@ body::after {
   touch-action: manipulation;
 }
 .cbtn b { font-family: var(--font-jp); font-weight: 900; font-size: clamp(12px, 3.4vw, 16px); line-height: 1; }
-.cbtn small { font: 700 clamp(10px, 2.6vw, 12px) / 1 var(--font-label); letter-spacing: 0.12em; }
+.cbtn small { font: 700 clamp(10px, 2.6vw, 12px) / 1 var(--font-label); letter-spacing: 0.1em; white-space: nowrap; }
 .cbtn:active { background: var(--orange); color: var(--ink); }
 .cbtn:focus-visible { outline: 2px solid var(--paper); outline-offset: 2px; }
 .cbtn:disabled { opacity: 0.35; cursor: default; }
@@ -424,8 +581,56 @@ body::after {
 .vote small { font: 700 clamp(9px, 2.5vw, 12px) / 1 var(--font-label); letter-spacing: 0.08em; }
 .vote b { font-family: var(--font-jp); font-weight: 900; font-size: clamp(12px, 3.4vw, 15px); line-height: 1; }
 .vote.pending b { animation: blink 0.5s steps(1) infinite; }
-.vote.p0 { background: var(--green); border-color: var(--green); color: var(--ink); }
-.vote.p1 { background: var(--orange); color: var(--ink); }
+.vote.resolved { background: var(--c); border-color: var(--c); color: var(--ink); }
+
+/* ---------- four-player hub + menu sheet ---------- */
+.hubbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 52px;
+  color: color-mix(in srgb, var(--orange) 70%, transparent);
+  font: 700 12px / 1 var(--font-label);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+}
+.hubbar .rule { flex: 1; height: 2px; background: repeating-linear-gradient(90deg, var(--orange) 0 6px, transparent 6px 10px); opacity: 0.5; }
+.hub {
+  flex: none;
+  width: 72px;
+  height: 52px;
+  border: 0;
+  background: var(--orange);
+  color: var(--ink);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  font: 700 16px / 1 var(--font-label);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.hub:focus-visible { outline: 3px solid var(--paper); outline-offset: 2px; }
+.hub[aria-expanded="true"] { background: var(--green); }
+
+.sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  background: var(--scrim);
+  padding-inline: 12px;
+}
+.sheet[hidden] { display: none; }
+.sheet .console {
+  width: min(100%, 460px);
+  padding: 10px;
+  background: var(--panel);
+  border: 2px solid var(--orange);
+  box-shadow: 0 0 30px color-mix(in srgb, var(--orange) 35%, transparent);
+  min-height: 76px;
+}
 
 @keyframes blink { 50% { opacity: 0.25; } }
 
@@ -439,8 +644,7 @@ body::after {
 }
 
 @media (max-width: 370px) {
-  .magi { display: none; }
-  .unit { display: none; }
+  .console > .magi { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -456,44 +660,91 @@ body::after {
   </filter>
 </svg>
 
-<main id="app">
-  <section class="player" data-p="1" aria-label="Player 2"></section>
-  <nav class="console" id="console" aria-label="Game controls"></nav>
-  <section class="player" data-p="0" aria-label="Player 1"></section>
-</main>
+<main id="app"></main>
 
 <script>
 (() => {
-  // ---------------------------------------------------------------- state --
+  // ---------------------------------------------------------------- rules --
   const UNITS = [
     {tag: '零号機', unit: 'UNIT-00'},
     {tag: '初号機', unit: 'UNIT-01'},
+    {tag: '弐号機', unit: 'UNIT-02'},
+    {tag: '参号機', unit: 'UNIT-03'},
   ];
+  const CMDR_LETHAL = 21;
+  const POISON_LETHAL = 10;
+  const WARN = {life: 5, cmdr: 16, poison: 8};
   const KEY = 'nerv-life-support-v1';
-  const WARN_AT = 5;
 
-  const fresh = (start = 20, names = ['PLAYER 1', 'PLAYER 2'], sound = true) => ({
+  // Four-player seats run clockwise for turn order: two on each long side,
+  // each panel turned to face out toward its player.
+  const LAYOUTS = {
+    2: [
+      {area: '3 / 1', rot: 0},
+      {area: '1 / 1', rot: 180},
+    ],
+    4: [
+      {area: '3 / 1', rot: 90},
+      {area: '1 / 1', rot: 90},
+      {area: '1 / 2', rot: -90},
+      {area: '3 / 2', rot: -90},
+    ],
+  };
+
+  // ---------------------------------------------------------------- state --
+  const zeros = (n) => Array.from({length: n}, () => 0);
+  const fresh = (players = 2, start = 20, keep = {}) => ({
+    players,
     start,
-    life: [start, start],
-    names,
-    sound,
+    life: Array.from({length: players}, () => start),
+    cmdr: Array.from({length: players}, () => zeros(players)), // cmdr[p][q]: damage dealt to p by q's commander
+    poison: zeros(players),
+    names: keep.names || ['PLAYER 1', 'PLAYER 2', 'PLAYER 3', 'PLAYER 4'],
+    sound: keep.sound ?? true,
     history: [],
   });
 
-  let state = fresh();
-  try {
-    const saved = JSON.parse(localStorage.getItem(KEY) || 'null');
-    if (saved && Array.isArray(saved.life)) state = {...fresh(), ...saved};
-  } catch (e) { /* storage unavailable: start fresh */ }
+  const load = () => {
+    try {
+      const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (!s || !Array.isArray(s.life)) return fresh();
+      const players = s.players === 4 ? 4 : 2;
+      const base = fresh(players, s.start || (players === 4 ? 40 : 20), {sound: s.sound});
+      const names = [...(s.names || []), ...base.names.slice((s.names || []).length)].slice(0, 4);
+      return {
+        ...base,
+        life: base.life.map((v, i) => (Number.isFinite(s.life[i]) ? s.life[i] : v)),
+        cmdr: base.cmdr.map((row, p) => row.map((v, q) => s.cmdr?.[p]?.[q] ?? v)),
+        poison: base.poison.map((v, p) => s.poison?.[p] ?? v),
+        names,
+        history: Array.isArray(s.history) && s.history.every((h) => h.snap) ? s.history : [],
+      };
+    } catch (e) {
+      return fresh();
+    }
+  };
+  let state = load();
 
   const save = () => {
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { /* ignore */ }
   };
 
+  const maxCmdr = (p) => Math.max(0, ...state.cmdr[p]);
+  const deadReason = (p) =>
+    state.life[p] <= 0 ? 'LIFE DEPLETED'
+      : maxCmdr(p) >= CMDR_LETHAL ? 'COMMANDER DAMAGE'
+        : state.poison[p] >= POISON_LETHAL ? 'POISON'
+          : null;
+  const level = (p) =>
+    deadReason(p) ? 2
+      : state.life[p] <= WARN.life || maxCmdr(p) >= WARN.cmdr || state.poison[p] >= WARN.poison ? 1
+        : 0;
+
   // Taps within a short window on one player fold into a single change:
   // one delta readout, one undo step.
-  const pending = [null, null];
   const WINDOW_MS = 1600;
+  let pending = [];
+  const snapshot = (p) => ({life: state.life[p], cmdr: [...state.cmdr[p]], poison: state.poison[p]});
 
   // ---------------------------------------------------------- seven-seg --
   const SEGS = {
@@ -607,8 +858,33 @@ body::after {
   };
   document.addEventListener('visibilitychange', keepAwake);
 
+  // Press and hold repeats after a short delay. Keyboard activation still works.
+  const bindHold = (btn, fn) => {
+    let holdT = null, repT = null;
+    const stop = () => { clearTimeout(holdT); clearInterval(repT); holdT = repT = null; };
+    btn.addEventListener('pointerdown', (e) => {
+      if (e.button > 0) return;
+      Snd.unlock();
+      keepAwake();
+      fn();
+      stop();
+      holdT = setTimeout(() => { repT = setInterval(fn, 110); }, 450);
+    });
+    ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => btn.addEventListener(ev, stop));
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+    btn.addEventListener('click', (e) => { if (e.detail === 0) fn(); });
+  };
+
   // ----------------------------------------------------------- players --
-  const panels = [...document.querySelectorAll('.player')].sort((a, b) => a.dataset.p - b.dataset.p);
+  const app = document.getElementById('app');
+  let panels = [];
+  let consoleEl = null;
+  let sheetEl = null;
+  let hubBtn = null;
+  let mode = 'main';
+  const cmdOpen = new Set();
+
+  const opponents = (p) => Array.from({length: state.players}, (_, q) => q).filter((q) => q !== p);
 
   const buildPanel = (el, p) => {
     el.innerHTML = `
@@ -616,6 +892,7 @@ body::after {
         <span class="tag">${UNITS[p].tag}</span>
         <span class="unit">${UNITS[p].unit}</span>
         <button class="name" type="button" id="name-${p}" aria-label="Rename player ${p + 1}"></button>
+        <button class="cmd" type="button" id="cmd-${p}" aria-pressed="false" aria-label="Player ${p + 1}: commander damage and poison"><b>指揮官</b><small>CMDR</small></button>
         <span class="status"><b></b><span></span></span>
       </header>
       <div class="hazard"></div>
@@ -628,58 +905,94 @@ body::after {
         </button>
         <div class="readout">
           <div class="label-row">
-            <span class="limit"><b>活動限界まで あと</b><small>LIFE</small></span>
+            <span class="limit"><b><span>活動限界まで</span><span>あと</span></b><small>LIFE</small></span>
             <span class="delta" aria-hidden="true"></span>
           </div>
           <div class="digits"></div>
+          <div class="marks"></div>
+        </div>
+        <div class="dmg" hidden>
+          ${opponents(p).map((q) => `
+            <div class="dcell" style="--c: var(--unit-${q})">
+              <div class="dsrc"><b>${UNITS[q].tag}</b><small id="dsrc-${p}-${q}"></small></div>
+              <div class="dctl">
+                <button class="dbtn minus" type="button" id="cmdr-minus-${p}-${q}" aria-label="Player ${p + 1}: remove 1 commander damage from player ${q + 1}">−</button>
+                <span class="dval" id="cmdr-${p}-${q}"></span>
+                <button class="dbtn plus" type="button" id="cmdr-plus-${p}-${q}" aria-label="Player ${p + 1}: take 1 commander damage from player ${q + 1}">+</button>
+              </div>
+            </div>`).join('')}
+          <div class="dcell" style="--c: var(--green)">
+            <div class="dsrc"><b>毒</b><small>POISON</small></div>
+            <div class="dctl">
+              <button class="dbtn minus" type="button" id="poison-minus-${p}" aria-label="Player ${p + 1}: remove 1 poison counter">−</button>
+              <span class="dval" id="poison-${p}"></span>
+              <button class="dbtn plus" type="button" id="poison-plus-${p}" aria-label="Player ${p + 1}: add 1 poison counter">+</button>
+            </div>
+          </div>
         </div>
       </div>
       <footer class="gauge">
-        <span class="lbl"><b>生命維持</b>LIFE SUPPORT</span>
+        <span class="lbl"><b>生命維持</b><span>LIFE SUPPORT</span></span>
         <span class="cells">${'<i></i>'.repeat(20)}</span>
         <span class="pct"></span>
       </footer>
       <p class="sr" aria-live="polite"></p>`;
 
-    // Press-and-hold repeats after a short delay.
-    const bindZone = (btn, dir) => {
-      let holdT = null, repT = null;
-      const stop = () => { clearTimeout(holdT); clearInterval(repT); holdT = repT = null; };
-      btn.addEventListener('pointerdown', (e) => {
-        if (e.button > 0) return;
-        Snd.unlock();
-        keepAwake();
-        change(p, dir, btn);
-        stop();
-        holdT = setTimeout(() => { repT = setInterval(() => change(p, dir, btn), 110); }, 450);
-      });
-      ['pointerup', 'pointercancel', 'pointerleave'].forEach((ev) => btn.addEventListener(ev, stop));
-      btn.addEventListener('contextmenu', (e) => e.preventDefault());
-      // Keyboard activation arrives as a click with no pointer detail.
-      btn.addEventListener('click', (e) => { if (e.detail === 0) change(p, dir, btn); });
-    };
-    bindZone(el.querySelector('.minus'), -1);
-    bindZone(el.querySelector('.plus'), 1);
-
+    bindHold(el.querySelector('.minus'), () => changeLife(p, -1, el.querySelector('.zone.minus')));
+    bindHold(el.querySelector('.plus'), () => changeLife(p, 1, el.querySelector('.zone.plus')));
+    opponents(p).forEach((q) => {
+      bindHold(el.querySelector(`#cmdr-minus-${p}-${q}`), () => changeCmdr(p, q, -1));
+      bindHold(el.querySelector(`#cmdr-plus-${p}-${q}`), () => changeCmdr(p, q, 1));
+    });
+    bindHold(el.querySelector(`#poison-minus-${p}`), () => changePoison(p, -1));
+    bindHold(el.querySelector(`#poison-plus-${p}`), () => changePoison(p, 1));
     el.querySelector('.name').addEventListener('click', () => rename(p));
+    el.querySelector('.cmd').addEventListener('click', () => {
+      Snd.unlock();
+      Snd.play('click');
+      if (cmdOpen.has(p)) cmdOpen.delete(p); else cmdOpen.add(p);
+      render(p);
+    });
   };
 
   const render = (p, {pulse = false} = {}) => {
     const el = panels[p];
     const life = state.life[p];
-    const dead = life <= 0;
-    const warn = !dead && life <= WARN_AT;
-    el.classList.toggle('dead', dead);
-    el.classList.toggle('warn', warn);
+    const lv = level(p);
+    el.classList.toggle('dead', lv === 2);
+    el.classList.toggle('warn', lv === 1);
 
     el.querySelector('.name').textContent = state.names[p];
-    const [jp, en] = dead ? ['活動停止', 'OFFLINE'] : warn ? ['警告', 'WARNING'] : ['正常', 'NORMAL'];
+    const [jp, en] = lv === 2 ? ['活動停止', 'OFFLINE'] : lv === 1 ? ['警告', 'WARNING'] : ['正常', 'NORMAL'];
     el.querySelector('.status b').textContent = jp;
     el.querySelector('.status span').textContent = en;
 
     const digits = el.querySelector('.digits');
     digits.innerHTML = sevenSeg(lifeText(life));
     if (pulse) digits.animate([{opacity: 0.35}, {opacity: 1}], {duration: 110, easing: 'steps(2)'});
+
+    // Commander damage and poison, as marks under the total and in the grid
+    const marks = opponents(p)
+      .filter((q) => state.cmdr[p][q] > 0)
+      .map((q) => `<span class="mark${state.cmdr[p][q] >= WARN.cmdr ? ' hot' : ''}" style="--c: var(--unit-${q})"><b>${UNITS[q].tag[0]}</b>${state.cmdr[p][q]}</span>`);
+    if (state.poison[p] > 0) {
+      marks.push(`<span class="mark${state.poison[p] >= WARN.poison ? ' hot' : ''}" style="--c: var(--green)"><b>毒</b>${state.poison[p]}</span>`);
+    }
+    el.querySelector('.marks').innerHTML = marks.join('');
+    opponents(p).forEach((q) => {
+      const v = state.cmdr[p][q];
+      const out = el.querySelector(`#cmdr-${p}-${q}`);
+      out.innerHTML = `${v}<small>/${CMDR_LETHAL}</small>`;
+      out.classList.toggle('hot', v >= WARN.cmdr);
+      el.querySelector(`#dsrc-${p}-${q}`).textContent = state.names[q];
+    });
+    const pv = el.querySelector(`#poison-${p}`);
+    pv.innerHTML = `${state.poison[p]}<small>/${POISON_LETHAL}</small>`;
+    pv.classList.toggle('hot', state.poison[p] >= WARN.poison);
+
+    const open = cmdOpen.has(p);
+    el.querySelector('.dmg').hidden = !open;
+    el.querySelector('.cmd').setAttribute('aria-pressed', String(open));
 
     // Gauge: 20 cells scaled to the starting life
     const ratio = Math.max(0, life) / state.start;
@@ -699,6 +1012,7 @@ body::after {
     } else {
       delta.className = 'delta';
     }
+    syncDeadStamp(p);
   };
 
   const stamp = (p, kind, jp, en, ms) => {
@@ -714,49 +1028,77 @@ body::after {
   const syncDeadStamp = (p) => {
     const body = panels[p].querySelector('.body');
     const has = body.querySelector('.stamp.dead');
-    if (state.life[p] <= 0 && !has) stamp(p, 'dead', '活動停止', 'UNIT OFFLINE');
-    if (state.life[p] > 0 && has) has.remove();
+    const reason = deadReason(p);
+    if (reason && !has) stamp(p, 'dead', '活動停止', reason);
+    else if (reason && has) has.querySelector('small').textContent = reason;
+    else if (!reason && has) has.remove();
   };
 
-  const change = (p, dir, btn) => {
-    const before = state.life[p];
-    const next = Math.max(-99, Math.min(999, before + dir));
-    if (next === before) return;
-
+  // Every change goes through here: grouping, undo snapshot, sound, render.
+  const applyChange = (p, mutate, {lifeDelta = 0, up = false, btn = null} = {}) => {
+    const before = level(p);
     if (!pending[p]) {
-      pending[p] = {delta: 0, timer: null};
-      state.history.push({p, before});
-      if (state.history.length > 200) state.history.shift();
+      pending[p] = {delta: 0, timer: null, entry: {p, snap: snapshot(p)}};
     }
     const pend = pending[p];
-    pend.delta += dir;
+    // The group being tapped is always the newest undo step, even if another
+    // player's group started after it.
+    const at = state.history.indexOf(pend.entry);
+    if (at !== -1) state.history.splice(at, 1);
+    state.history.push(pend.entry);
+    if (state.history.length > 300) state.history.shift();
+    pend.delta += lifeDelta;
     clearTimeout(pend.timer);
     pend.timer = setTimeout(() => { pending[p] = null; render(p); }, WINDOW_MS);
 
-    state.life[p] = next;
+    mutate();
     save();
-    render(p, {pulse: true});
-    syncDeadStamp(p);
+    render(p, {pulse: lifeDelta !== 0});
     renderConsole();
 
     btn?.querySelector('.flash')?.animate([{opacity: 1}, {opacity: 0}], {duration: 220, easing: 'ease-out'});
     buzz(8);
-    if (next <= 0 && before > 0) { Snd.play('zero'); buzz(120); }
-    else if (next <= WARN_AT && before > WARN_AT) Snd.play('warn');
-    else Snd.play(dir > 0 ? 'plus' : 'minus');
-    panels[p].querySelector('.sr').textContent = `${state.names[p]}: ${next} life`;
+    const after = level(p);
+    if (after === 2 && before < 2) { Snd.play('zero'); buzz(120); }
+    else if (after === 1 && before === 0) Snd.play('warn');
+    else Snd.play(up ? 'plus' : 'minus');
+    panels[p].querySelector('.sr').textContent =
+      `${state.names[p]}: ${state.life[p]} life` + (deadReason(p) ? `, out (${deadReason(p).toLowerCase()})` : '');
+  };
+
+  const clampLife = (v) => Math.max(-99, Math.min(999, v));
+
+  const changeLife = (p, d, btn) => {
+    const next = clampLife(state.life[p] + d);
+    if (next === state.life[p]) return;
+    applyChange(p, () => { state.life[p] = next; }, {lifeDelta: next - state.life[p], up: d > 0, btn});
+  };
+
+  // Commander damage is combat damage too, so it also comes off life.
+  const changeCmdr = (p, q, d) => {
+    const next = Math.max(0, Math.min(99, state.cmdr[p][q] + d));
+    const step = next - state.cmdr[p][q];
+    if (!step) return;
+    const life = clampLife(state.life[p] - step);
+    applyChange(p, () => { state.cmdr[p][q] = next; state.life[p] = life; }, {lifeDelta: life - state.life[p], up: step < 0});
+  };
+
+  const changePoison = (p, d) => {
+    const next = Math.max(0, Math.min(99, state.poison[p] + d));
+    if (next === state.poison[p]) return;
+    applyChange(p, () => { state.poison[p] = next; }, {up: d < 0});
   };
 
   const rename = (p) => {
     const header = panels[p].querySelector('.ph');
-    const btn = header.querySelector('.name');
+    const nameBtn = header.querySelector('.name');
     const input = document.createElement('input');
     input.className = 'name-input';
     input.id = `name-input-${p}`;
     input.maxLength = 14;
     input.value = state.names[p];
     input.setAttribute('aria-label', `Player ${p + 1} name`);
-    btn.replaceWith(input);
+    nameBtn.replaceWith(input);
     input.focus();
     input.select();
     let done = false;
@@ -766,8 +1108,9 @@ body::after {
       const v = input.value.trim().toUpperCase();
       if (v) state.names[p] = v;
       save();
-      input.replaceWith(btn);
-      render(p);
+      input.replaceWith(nameBtn);
+      // Names also label the other panels' commander damage rows
+      panels.forEach((_, i) => render(i));
     };
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') commit();
@@ -777,15 +1120,19 @@ body::after {
   };
 
   // ----------------------------------------------------------- console --
-  const consoleEl = document.getElementById('console');
-  let mode = 'main';
-
   const btn = (id, jp, en, extra = '') => `<button class="cbtn ${extra}" type="button" id="${id}"><b>${jp}</b><small>${en}</small></button>`;
 
+  const setSheet = (open) => {
+    if (!sheetEl) return;
+    sheetEl.hidden = !open;
+    hubBtn.setAttribute('aria-expanded', String(open));
+    if (!open && mode !== 'magi') { mode = 'main'; renderConsole(); }
+  };
+
   const renderConsole = () => {
-    if (mode !== 'main') return;
+    if (mode !== 'main' || !consoleEl) return;
     consoleEl.innerHTML =
-      `<span class="magi" aria-hidden="true">MAGI</span>` +
+      (state.players === 2 ? `<span class="magi" aria-hidden="true">MAGI</span>` : '') +
       btn('c-first', '先攻', 'FIRST') +
       btn('c-undo', '取消', 'UNDO') +
       btn('c-reset', '初期化', 'RESET') +
@@ -804,30 +1151,29 @@ body::after {
     };
   };
 
+  const RESETS = [
+    {id: '2-20', players: 2, start: 20, jp: '20', en: '2P · DUEL'},
+    {id: '2-40', players: 2, start: 40, jp: '40', en: '2P · CMDR'},
+    {id: '4-40', players: 4, start: 40, jp: '40', en: '4P · CMDR'},
+  ];
   const renderReset = () => {
     consoleEl.innerHTML =
-      `<span class="console-label"><b>初期化</b><small>START LIFE</small></span>` +
-      [20, 30, 40].map((n) => btn(`c-start-${n}`, String(n), n === 40 ? 'COMMANDER' : 'LIFE', 'go')).join('') +
+      `<span class="console-label"><b>初期化</b><small>NEW GAME</small></span>` +
+      RESETS.map((r) => btn(`c-start-${r.id}`, r.jp, r.en, 'go')).join('') +
       btn('c-cancel', '中止', 'CANCEL');
-    [20, 30, 40].forEach((n) => {
-      consoleEl.querySelector(`#c-start-${n}`).onclick = () => resetGame(n);
+    RESETS.forEach((r) => {
+      consoleEl.querySelector(`#c-start-${r.id}`).onclick = () => resetGame(r.players, r.start);
     });
     consoleEl.querySelector('#c-cancel').onclick = () => { mode = 'main'; renderConsole(); };
   };
 
-  const resetGame = (start) => {
-    pending.forEach((pd, p) => { if (pd) clearTimeout(pd.timer); pending[p] = null; });
-    state = fresh(start, state.names, state.sound);
+  const resetGame = (players, start) => {
+    pending.forEach((pd) => pd && clearTimeout(pd.timer));
+    state = fresh(players, start, {names: state.names, sound: state.sound});
     save();
     mode = 'main';
-    panels.forEach((el) => {
-      el.querySelectorAll('.stamp').forEach((s) => s.remove());
-      el.style.animation = 'none';
-      void el.offsetWidth;
-      el.style.animation = '';
-    });
-    [0, 1].forEach((p) => render(p));
-    renderConsole();
+    cmdOpen.clear();
+    buildLayout();
     Snd.play('reset');
     buzz(30);
   };
@@ -836,11 +1182,13 @@ body::after {
     const last = state.history.pop();
     if (!last) return;
     const p = last.p;
+    if (p >= state.players) { renderConsole(); return; }
     if (pending[p]) { clearTimeout(pending[p].timer); pending[p] = null; }
-    state.life[p] = last.before;
+    state.life[p] = last.snap.life;
+    state.cmdr[p] = [...last.snap.cmdr];
+    state.poison[p] = last.snap.poison;
     save();
     render(p, {pulse: true});
-    syncDeadStamp(p);
     renderConsole();
     Snd.unlock();
     Snd.play('undo');
@@ -851,35 +1199,102 @@ body::after {
   const runMagi = () => {
     if (mode === 'magi') return;
     mode = 'magi';
-    const winner = Math.random() < 0.5 ? 0 : 1;
+    const n = state.players;
+    const winner = Math.floor(Math.random() * n);
     const dissenter = Math.random() < 0.45 ? Math.floor(Math.random() * 3) : -1;
-    const votes = [0, 1, 2].map((i) => (i === dissenter ? 1 - winner : winner));
+    const others = Array.from({length: n}, (_, i) => i).filter((i) => i !== winner);
+    const votes = [0, 1, 2].map((i) => (i === dissenter ? others[Math.floor(Math.random() * others.length)] : winner));
     const names = ['MELCHIOR·1', 'BALTHASAR·2', 'CASPER·3'];
-    consoleEl.innerHTML = names.map((n, i) => `<div class="vote pending" id="v-${i}"><small>${n}</small><b>審議中</b></div>`).join('');
+    consoleEl.innerHTML = names.map((nm, i) => `<div class="vote pending" id="v-${i}"><small>${nm}</small><b>審議中</b></div>`).join('');
     Snd.play('chatter');
     votes.forEach((v, i) => {
       setTimeout(() => {
         const el = consoleEl.querySelector(`#v-${i}`);
         if (!el) return;
-        el.className = `vote p${v}`;
+        el.className = 'vote resolved';
+        el.style.setProperty('--c', `var(--unit-${v})`);
         el.querySelector('b').textContent = UNITS[v].unit;
         Snd.play('approve');
         buzz(10);
       }, 900 + i * 320);
     });
+    const resolveAt = 900 + 3 * 320 + 250;
     setTimeout(() => {
       stamp(winner, 'first', '先攻', 'FIRST PLAYER', 2600);
       Snd.play('zero');
       buzz(60);
       consoleEl.innerHTML =
         `<span class="console-label"><b>決議</b><small>RESOLVED</small></span>` +
-        `<div class="vote p${winner}"><small>${state.names[winner]}</small><b>先攻 FIRST</b></div>`;
-    }, 900 + 3 * 320 + 250);
-    setTimeout(() => { mode = 'main'; renderConsole(); }, 900 + 3 * 320 + 2700);
+        `<div class="vote resolved" style="--c: var(--unit-${winner})"><small>${state.names[winner]}</small><b>先攻 FIRST</b></div>`;
+    }, resolveAt);
+    setTimeout(() => {
+      mode = 'main';
+      if (sheetEl) setSheet(false);
+      renderConsole();
+    }, resolveAt + (sheetEl ? 900 : 2450));
   };
 
-  // --------------------------------------------------------------- boot --
-  panels.forEach((el, p) => { buildPanel(el, p); render(p); syncDeadStamp(p); });
-  renderConsole();
+  // ------------------------------------------------------------ layout --
+  const buildLayout = () => {
+    const n = state.players;
+    app.className = `m${n}`;
+    app.innerHTML = '';
+    pending = Array.from({length: n}, () => null);
+    panels = LAYOUTS[n].map((seat, p) => {
+      const s = document.createElement('div');
+      s.className = 'seat';
+      s.dataset.rot = String(seat.rot);
+      s.style.gridArea = seat.area;
+      s.style.setProperty('--rot', `${seat.rot}deg`);
+      const el = document.createElement('section');
+      el.className = 'player';
+      el.dataset.p = String(p);
+      el.setAttribute('aria-label', `Player ${p + 1}`);
+      s.appendChild(el);
+      app.appendChild(s);
+      buildPanel(el, p);
+      return el;
+    });
+
+    if (n === 2) {
+      consoleEl = document.createElement('nav');
+      consoleEl.className = 'console';
+      consoleEl.setAttribute('aria-label', 'Game controls');
+      consoleEl.style.gridArea = '2 / 1';
+      app.appendChild(consoleEl);
+      sheetEl = hubBtn = null;
+    } else {
+      // Four players: a MAGI hub on the center line opens the controls as a sheet.
+      const bar = document.createElement('div');
+      bar.className = 'hubbar';
+      bar.style.gridArea = '2 / 1 / 3 / 3';
+      bar.innerHTML = `<span class="rule"></span><span>${n}P · ${state.start}</span>` +
+        `<button class="hub" id="hub" type="button" aria-expanded="false" aria-controls="sheet" aria-label="Game controls">MAGI</button>` +
+        `<span>指揮官戦</span><span class="rule"></span>`;
+      app.appendChild(bar);
+      hubBtn = bar.querySelector('#hub');
+      sheetEl = document.createElement('div');
+      sheetEl.className = 'sheet';
+      sheetEl.id = 'sheet';
+      sheetEl.hidden = true;
+      sheetEl.innerHTML = `<nav class="console" aria-label="Game controls"></nav>`;
+      app.appendChild(sheetEl);
+      consoleEl = sheetEl.querySelector('.console');
+      hubBtn.addEventListener('click', () => {
+        Snd.unlock();
+        Snd.play('click');
+        setSheet(sheetEl.hidden);
+      });
+      sheetEl.addEventListener('click', (e) => { if (e.target === sheetEl && mode !== 'magi') setSheet(false); });
+    }
+    panels.forEach((_, p) => render(p));
+    renderConsole();
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && sheetEl && !sheetEl.hidden && mode !== 'magi') setSheet(false);
+  });
+
+  buildLayout();
 })();
 </script>

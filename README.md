@@ -57,29 +57,37 @@ of motion:
 
 ## NERV Life Support (MTG life tracker)
 
-![tracker](media/life-tracker.png)
+| Duel | Commander, four players |
+|---|---|
+| ![duel](media/life-tracker.png) | ![commander](media/life-tracker-4p.png) |
 
-Lay the phone flat between the two players. Each half faces its player:
-the far panel is rotated 180°, the same as the official MTG Companion
-tracker.
+Lay the phone flat on the table. Each panel turns to face its player.
 
+- **Duel (2P · 20 or 40).** Two panels face each other across the MAGI
+  console strip, the far one rotated 180°.
+- **Commander (4P · 40).** The phone lies lengthwise with two players on each
+  long side. Each panel turns 90° toward its player, and seats run clockwise
+  for turn order. A MAGI hub on the center line opens the controls. In these
+  short panels the 活動限界まで あと label stands vertically, in two columns,
+  so the total gets the full height.
 - **Life.** Tap the left half to lose 1 and the right half to gain 1. Hold
-  to repeat. Quick taps on one player fold into a single change, shown as a
-  green or red delta beside the total and undone in one step.
-- **Readout.** Amber seven-segment digits under 活動限界まで あと (the
-  battery screen's "until activity limit, remaining"), with a 20-cell
-  生命維持 LIFE SUPPORT gauge scaled to the starting life.
-- **States.** At 5 or less the panel turns red, hazard stripes scroll and
-  警告 WARNING blinks. At 0 a 活動停止 UNIT OFFLINE stamp comes down. You
-  can still adjust life afterwards.
-- **Console strip.** 先攻 FIRST runs a MAGI vote (Melchior, Balthasar and
-  Casper vote, majority wins, sometimes one dissents) and stamps the first
-  player's panel. 取消 UNDO. 初期化 RESET to 20, 30 or 40 (Commander).
-  音声 SOUND toggles the effects.
-- **Details.** Tap a player's name to rename it. Sound effects are
-  synthesized live with Web Audio, using the same recipes as the videos.
-  Taps vibrate on phones that support it. The page asks the screen to stay
-  awake. The game survives a refresh (saved in the browser).
+  to repeat. Quick taps on one player fold into one change, shown as a green
+  or red delta and undone in one step. Undo always takes back the most recent
+  change.
+- **Commander damage and poison.** 指揮官 CMDR flips a panel into a damage
+  grid: one row per opponent, in that opponent's unit color (零号機, 初号機,
+  弐号機, 参号機), plus 毒 poison. Commander damage also comes off life.
+  Nonzero counts show as colored marks beside the total.
+- **States.** 警告 WARNING (red frame, scrolling hazard stripes) at 5 life,
+  16 commander damage from one source, or 8 poison. 活動停止 at 0 life, 21
+  commander damage or 10 poison. The stamp names the cause, and counts can
+  still be adjusted afterwards.
+- **Console.** 先攻 FIRST runs a MAGI vote and stamps the first player.
+  取消 UNDO. 初期化 RESET starts 2P·20, 2P·40 or 4P·40. 音声 SOUND toggles
+  effects.
+- **Details.** Tap a name to rename the player. Names label the damage rows
+  on the other panels too. Web Audio effects, vibration on phones that
+  support it, and a screen wake lock. The game survives a refresh.
 
 `tracker/life-tracker.html` is the source. `npm run tracker` builds it into
 an installable web app in `tracker/`: `index.html`, `manifest.webmanifest`

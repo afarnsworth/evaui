@@ -836,17 +836,24 @@ body::after {
 
   const buzz = (ms) => { try { navigator.vibrate?.(ms); } catch (e) { /* ignore */ } };
 
-  // Keep the screen awake while a game is on the table.
+  // Keep the screen awake while a game is on the table. The lock is requested
+  // at load, again whenever the app returns to the foreground (the browser
+  // drops it when hidden), and on any tap for browsers that want a gesture.
   let wakeLock = null;
-  const keepAwake = async () => {
-    try {
-      if (!wakeLock && navigator.wakeLock && document.visibilityState === 'visible') {
-        wakeLock = await navigator.wakeLock.request('screen');
-        wakeLock.addEventListener('release', () => { wakeLock = null; });
-      }
-    } catch (e) { /* refused: fine */ }
+  let wakeRequest = null;
+  const keepAwake = () => {
+    if (wakeLock || wakeRequest || !navigator.wakeLock || document.visibilityState !== 'visible') return;
+    wakeRequest = navigator.wakeLock.request('screen')
+      .then((lock) => {
+        wakeLock = lock;
+        lock.addEventListener('release', () => { wakeLock = null; });
+      })
+      .catch(() => { /* refused or unsupported: the phone's own timeout applies */ })
+      .finally(() => { wakeRequest = null; });
   };
   document.addEventListener('visibilitychange', keepAwake);
+  document.addEventListener('pointerdown', keepAwake, {capture: true, passive: true});
+  keepAwake();
 
   // Press and hold repeats after a short delay. Keyboard activation still works.
   const bindHold = (btn, fn) => {
@@ -855,7 +862,6 @@ body::after {
     btn.addEventListener('pointerdown', (e) => {
       if (e.button > 0) return;
       Snd.unlock();
-      keepAwake();
       fn();
       stop();
       holdT = setTimeout(() => { repT = setInterval(fn, 110); }, 450);
